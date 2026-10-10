@@ -36,3 +36,38 @@
 - a noise level of ~1 LSB ("least significant bit", the smallest step the ADC can measure).
 - Issue: A0 read ~0.9 V at first. Wire was on ALRT, not A0. A floating input reads a random value.
 - Next: measure 0 V, compare against multimeter when it arrives
+
+## 2026-10-10: Resistor measurements (multimeter)
+
+### Setup
+- Digital multimeter, resistance mode
+- Each resistor measured alone on the breadboard (no other connections), probes on the resistor legs
+- Ranges: 200 Ω range for 10 Ω (0.1 Ω resolution), 2k range for 220 Ω and 1 kΩ (1 Ω resolution)
+- Probe lead resistance not subtracted
+
+### Results
+| Nominal | Readings | Deviation from nominal | Selected |
+|---|---|---|---|
+| 10 Ω | 10.3 Ω, 10.4 Ω, 10.1 Ω | +1.0% to 4.0% | not used |
+| 220 Ω | 215 Ω, 216 Ω, 216 Ω | -2.3% to -1.8% | 216 Ω, current shunt |
+| 1 kΩ | 981 Ω, 985 Ω, 996 Ω | -1.9% to -0.4% | 996 Ω, golden reference |
+
+- 10 Ω readings are limited by meter accuracy (about ±0.3-0.5 Ω) and contact resistance, so only good to "about 10 Ω"
+- Two matching 220 Ω readings (216 Ω) show the measurement is repeatable
+- Most readings sit 1.5-2.3% below nominal; too few samples to tell meter offset from part-to-part variation
+
+### Shunt decision
+- No 100 Ω resistors on hand
+- 1 kΩ rejected: drops 1 V at 1 mA, leaving too little voltage for the DUT
+- 10 Ω rejected: value only known to ~4%, and 10 mV at 1 mA needs maximum ADC gain
+- 220 Ω chosen: drops 0.22 V at 1 mA, leaving ~3.08 V for the DUT, and limits current to ~15 mA if a DUT shorts
+
+### Issues and fixes
+- Readings jumped erratically at first
+- Cause: poor probe contact; holding the resistor in the breadboard and pressing probes on its legs gave stable readings
+- Low resistances are hard to measure because lead and contact resistance add in; professional testers use Kelvin (4-wire) measurement
+
+### To do
+- Fill in remaining 10 Ω readings
+- Confirm the 216 Ω shunt value with the golden test (996 Ω resistor)
+- Parts with V_th close to 3 V may not reach 1 mA; report them as "no threshold found"
