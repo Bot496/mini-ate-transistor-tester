@@ -71,3 +71,38 @@
 - Fill in remaining 10 Ω readings
 - Confirm the 216 Ω shunt value with the golden test (996 Ω resistor)
 - Parts with V_th close to 3 V may not reach 1 mA; report them as "no threshold found"
+
+## 2026-10-11: MCP4728 DAC to ADS1115 loopback
+
+### Setup
+- MCP4728 12-bit DAC and ADS1115 16-bit ADC sharing the Pi's I2C bus (addresses 0x60 and 0x48)
+- Both powered from the Pi 3.3V rail; DAC reference = VDD
+- DAC channel A output (VA) wired to ADS1115 A0
+- Swept DAC codes 0 to 3968 in steps of 128; 50 ms settling, 20 ADC readings averaged per step
+- Script: dac_adc_loopback.py, data: loopback.csv
+
+### Results
+| DAC code | Expected (3.3 V ref) | Measured | Error |
+|---|---|---|---|
+| 0 | 0.000 V | 0.0011 V | +1.1 mV |
+| 1024 | 0.825 V | 0.8226 V | -2.4 mV |
+| 2048 | 1.650 V | 1.6424 V | -7.6 mV |
+| 3072 | 2.475 V | 2.4647 V | -10.3 mV |
+| 3968 | 3.197 V | 3.1815 V | -15.5 mV (-0.48%) |
+
+- Offset error: +1.1 mV at code 0
+- Gain error: about -0.5%, growing in proportion to the output voltage
+- Linearity: error grows smoothly with no jumps, so the DAC and ADC respond linearly
+- Part of the gain error comes from the supply: the rail is 3.294 V, not 3.3 V. Recalculating with 3.294 V, the error at code 3968 drops to about -9.6 mV (-0.30%)
+- Remaining ~0.3% is the combined DAC and ADC error, within their datasheet specs
+
+### Issues and fixes
+- First run read a constant 0.908 V at every code
+- Cause: only SDA and SCL were connected; the DAC's output pin (VA) was not wired to A0, so A0 was floating
+- SDA/SCL carry commands only; the analog output comes from VA-VD
+- Same 0.908 V floating value as the earlier ALRT mix-up, so a constant ~0.9 V reading is a reliable sign of an unconnected input
+
+### To do
+- Recalculate expected values using the measured 3.294 V supply
+- Spot-check a few DAC codes with the multimeter on VA
+- Add the MCP6022 buffer and rerun the loopback through it
