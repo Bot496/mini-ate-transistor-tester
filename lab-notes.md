@@ -133,3 +133,11 @@
 
 ### To do
 - Add the MCP6022 buffer and rerun the loopback through it
+
+## 2026-10-24: MCP6022 buffer
+- Wired op-amp A as a voltage follower: VA to pin 3, pin 2 to pin 1, pin 1 to A0
+- Unused op-amp B tied off (pin 5 to ground, pin 6 to pin 7); 0.1uF cap at pin 8
+- Buffered loopback matches the unbuffered one within 0.4 mV at every code
+- Difference is consistent with op-amp input offset voltage
+- Output still covers 0.0014 V to 3.18 V, so rail-to-rail range is fine
+- No load yet; buffer's benefit shows under load (next: golden test)
