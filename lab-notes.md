@@ -106,3 +106,30 @@
 - Recalculate expected values using the measured 3.294 V supply
 - Spot-check a few DAC codes with the multimeter on VA
 - Add the MCP6022 buffer and rerun the loopback through it
+
+## 2026-10-24: DAC spot-check with multimeter
+
+### Setup
+- DAC held at a fixed code with dac_hold.py
+- Multimeter on DC volts, measuring VA to ground
+- ADC values taken from the 2026-10-11 loopback (A0 wired to VA)
+- Expected = code / 4096 x 3.294V (measured supply)
+
+### Results
+| Code | Expected | Multimeter | Meter range | ADC (loopback) |
+|---|---|---|---|---|
+| 512 | 0.412 V | 0.412 V | 2V | 0.410 V |
+| 2048 | 1.647 V | 1.64 V | 2V | 1.64 V |
+| 3584 | 2.882 V | 2.88 V | 20V | 2.876 V |
+
+- DAC output matches expected within the meter's display resolution
+- ADC reads about 2-4 mV below the meter, so most of the loopback gain error appears to come from the ADC side
+- Limitation: meter accuracy is roughly +/-0.5% plus a few digits (about +/-15 mV at 2.88 V), larger than the differences being compared. Results are consistent with an accurate DAC and a slightly low ADC, but the meter cannot prove it
+- A valid check needs a reference roughly 4-10x more accurate than the device under test (test accuracy ratio)
+
+### Issues
+- At code 2048, the 2V range display kept blanking, so it was measured on the 20V range (2 decimals only)
+- Possible causes: reading too close to the range limit, or unstable probe contact. Not investigated further
+
+### To do
+- Add the MCP6022 buffer and rerun the loopback through it
