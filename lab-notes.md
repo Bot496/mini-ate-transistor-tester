@@ -141,3 +141,11 @@
 - Difference is consistent with op-amp input offset voltage
 - Output still covers 0.0014 V to 3.18 V, so rail-to-rail range is fine
 - No load yet; buffer's benefit shows under load (next: golden test)
+
+## 2026-10-24: Golden resistor test
+- DUT: 995-996 ohm resistor (multimeter). Shunt: 216 ohm
+- Tester result: about 997 ohm from 1 mA upward (within 0.2% of meter)
+- At low current R reads higher (1003 ohm at 0.17 mA): small fixed offsets dominate small signals
+- Confirms shunt value and measurement chain are correct
+- Debugging: (1) A1 read 0 V - row X grounded, shunt bypassed. (2) A1 = A0 - shunt not connected, no current. (3) A1 stuck at 1.024 V - shunt on + rail instead of - rail
+- Next: first 2N7000 threshold voltage
